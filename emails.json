@@ -1,0 +1,10 @@
+[
+  {
+    "text": "Please process invoice 12345 and bill the customer.",
+    "ground_truth": "Finance"
+  },
+  {
+    "text": "Customer requests help with login issues.",
+    "ground_truth": "Support"
+  }
+]

@@ -1,1 +1,23 @@
+class Email(BaseModel):
+    text: str
+    ground_truth: str | None = None
+
+EMAIL_FILE = "emails.json"
+
+def load_emails():
+    if not os.path.exists(EMAIL_FILE):
+        return []
+    with open(EMAIL_FILE, "r") as f:
+        return json.load(f)
+
+def save_emails(emails):
+    with open(EMAIL_FILE, "w") as f:
+        json.dump(emails, f, indent=2)
+
+@app.post("/add_email")
+def add_email(email: Email):
+    emails = load_emails()
+    emails.append(email.dict())
+    save_emails(emails)
+    return {"emails": emails}
 []

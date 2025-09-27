@@ -1,19 +1,33 @@
 from fastapi import FastAPI
 from app.api.routes import router as api_router
 from app.core.config import settings
+from fastapi import FastAPI
+from pydantic import BaseModel
+import json
+import os
 
-app = FastAPI(
-    title=settings.PROJECT_NAME,
-    description="ML Server with Feature Generation Factory",
-    version="1.0.0"
-)
+app = FastAPI()
 
-app.include_router(api_router, prefix="/api/v1")
+TOPIC_FILE = "topics.json"
 
-@app.get("/health")
-def health_check():
-    return {"status": "healthy", "service": settings.PROJECT_NAME}
+class Topic(BaseModel):
+    name: str
 
-if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run("app.main:app", host="0.0.0.0", port=8000, reload=True)
+def load_topics():
+    if not os.path.exists(TOPIC_FILE):
+        return []
+    with open(TOPIC_FILE, "r") as f:
+        return json.load(f)
+
+def save_topics(topics):
+    with open(TOPIC_FILE, "w") as f:
+        json.dump(topics, f, indent=2)
+
+@app.post("/add_topic")
+def add_topic(topic: Topic):
+    topics = load_topics()
+    if topic.name not in topics:
+        topics.append(topic.name)
+        save_topics(topics)
+    return {"topics": topics}
+
